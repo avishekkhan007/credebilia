@@ -88,11 +88,11 @@ public class BGContractInfoComponent implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		/*
-		 * logger.info("Start download file"); boolean isDownloaded =
-		 * fileTransferService.downloadFile(localFilepath, remoteFilePath);
-		 * logger.info("Download result: " + String.valueOf(isDownloaded));
-		 */
+		
+		logger.info("Start download file"); boolean isDownloaded =
+		fileTransferService.downloadFile(localFilepath, remoteFilePath);
+		logger.info("Download result: " + String.valueOf(isDownloaded));
+		
 		logger.info("Start parsing the  file");
 		BGFileModel bgmetadatModel= parseService.parseBGFile(localFilepath);
 		logger.info("finished parsing the  file"+bgmetadatModel.toString());
