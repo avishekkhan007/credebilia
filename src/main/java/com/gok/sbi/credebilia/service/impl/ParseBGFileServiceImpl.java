@@ -77,7 +77,7 @@ public class ParseBGFileServiceImpl implements ParseBGFileService {
 		} catch (IOException e) {
 			logger.error("Not able to process the pdf BG file ", e);
 		} 
-		logger.info("the parsed data is",bgMetadataModel.toString() );
+		//logger.info("the parsed data is",bgMetadataModel.toString() );
 		return bgMetadataModel;
 	}
 

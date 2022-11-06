@@ -7,10 +7,12 @@ import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileSystemUtils;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -40,8 +42,6 @@ public class FileTransferServiceImpl implements FileTransferService {
 	@Value("${com.gok.sbi.sftp.channelTimeout}")
 	private Integer channelTimeout;
 
-
-
 	@Override
 	public boolean downloadFile(String localFilePath, String remoteFilePath) {
 		ChannelSftp channelSftp = createChannelSftp();
@@ -52,7 +52,7 @@ public class FileTransferServiceImpl implements FileTransferService {
 			channelSftp.get(remoteFilePath, outputStream);
 			file.createNewFile();
 			return true;
-		} catch(SftpException | IOException ex) {
+		} catch (SftpException | IOException ex) {
 			logger.error("Error download file", ex);
 		} finally {
 			disconnectChannelSftp(channelSftp);
@@ -71,7 +71,7 @@ public class FileTransferServiceImpl implements FileTransferService {
 			Channel channel = session.openChannel("sftp");
 			channel.connect(channelTimeout);
 			return (ChannelSftp) channel;
-		} catch(JSchException ex) {
+		} catch (JSchException ex) {
 			logger.error("Create ChannelSftp error", ex);
 		}
 
@@ -80,18 +80,35 @@ public class FileTransferServiceImpl implements FileTransferService {
 
 	private void disconnectChannelSftp(ChannelSftp channelSftp) {
 		try {
-			if( channelSftp == null)
+			if (channelSftp == null)
 				return;
 
-			if(channelSftp.isConnected())
+			if (channelSftp.isConnected())
 				channelSftp.disconnect();
 
-			if(channelSftp.getSession() != null)
+			if (channelSftp.getSession() != null)
 				channelSftp.getSession().disconnect();
 
-		} catch(Exception ex) {
+		} catch (Exception ex) {
 			logger.error("SFTP disconnect error", ex);
 		}
 	}
 
+	@Override
+	public boolean copyFromOneFolderToAnother(String localFilePath, String remoteFilePath) {
+		File source = new File(remoteFilePath);
+		File dest = new File(localFilePath);
+
+		if (dest.exists()) {
+			dest.delete();
+		}
+		try {
+			FileSystemUtils.copyRecursively(source, dest);
+			return true;
+		} catch (IOException e) {
+			logger.error("Local File copy Error", e);
+
+		}
+		return false;
+	}
 }

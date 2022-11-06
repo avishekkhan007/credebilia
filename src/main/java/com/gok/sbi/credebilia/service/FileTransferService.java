@@ -4,5 +4,6 @@ public interface FileTransferService {
 
 
 	boolean downloadFile(String localFilePath, String remoteFilePath);
+	boolean copyFromOneFolderToAnother(String localFilePath, String remoteFilePath);
 
 }

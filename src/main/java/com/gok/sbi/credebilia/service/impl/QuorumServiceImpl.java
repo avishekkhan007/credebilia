@@ -1,8 +1,12 @@
 package com.gok.sbi.credebilia.service.impl;
 
-import com.gok.sbi.credebilia.service.QuorumService;
-import com.gok.sbi.credebilia.web3j.BankGuaranteeManager;
-import lombok.extern.slf4j.Slf4j;
+import java.io.File;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.util.Date;
+
+import javax.annotation.PostConstruct;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -15,12 +19,11 @@ import org.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.web3j.protocol.http.HttpService;
 import org.web3j.quorum.Quorum;
 import org.web3j.tx.gas.ContractGasProvider;
-import org.web3j.utils.Numeric;
 
-import javax.annotation.PostConstruct;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.util.Date;
+import com.gok.sbi.credebilia.service.QuorumService;
+import com.gok.sbi.credebilia.web3j.BankGuaranteeManager;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -53,10 +56,11 @@ public class QuorumServiceImpl implements QuorumService {
     private ResourceLoader resourceLoader;
 
     private Resource resource;
+    private File walletFile;
 
     @PostConstruct
     public void init() {
-        resource = resourceLoader.getResource("classpath:wallet/"+walletFileName);
+        walletFile = new File(walletFolder+walletFileName);
     }
 
     private Quorum getQuorumObject() {
@@ -65,7 +69,7 @@ public class QuorumServiceImpl implements QuorumService {
 
     public Credentials getCredentialFromWallet() {
         try {
-            return WalletUtils.loadCredentials(walletPassword, resource.getFile());
+            return WalletUtils.loadCredentials(walletPassword, walletFile);
         } catch (IOException | CipherException e) {
             log.error("Could not load wallet.",e);
             throw new RuntimeException("Could not load wallet. Original error : "+e.getMessage(), e);
